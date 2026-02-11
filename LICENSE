@@ -1,0 +1,58 @@
+Apache License
+Version 2.0, January 2004
+http://www.apache.org/licenses/
+
+Copyright 2026 AI Voice Assistant Project
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+================================================================================
+THIRD PARTY COMPONENTS
+================================================================================
+
+This project incorporates the following third-party AI models and software:
+
+1. Qwen2.5-7B Language Model
+   Copyright (c) Alibaba Cloud
+   License: Apache License 2.0
+   Source: https://huggingface.co/Qwen/Qwen2.5-7B-Instruct
+
+2. LLaVA 7B Vision-Language Model
+   Copyright (c) Haotian Liu et al.
+   License: Apache License 2.0
+   Source: https://huggingface.co/llava-hf/llava-v1.6-vicuna-7b-hf
+
+3. Faster-Whisper STT Engine
+   License: MIT License
+   Source: https://github.com/guillaumekln/faster-whisper
+
+4. Piper TTS Engine
+   License: MIT License
+   Source: https://github.com/rhasspy/piper
+
+5. Gradio Web Interface
+   License: Apache License 2.0
+   Source: https://github.com/gradio-app/gradio
+
+6. Ollama Model Runtime
+   License: MIT License
+   Source: https://github.com/ollama/ollama
+
+For complete license texts of third-party components, please refer to their
+respective repositories listed above.
+
+NOTE: pvporcupine (Porcupine Wake Word) requires a commercial license for
+non-personal use and is therefore disabled by default in commercial deployments.
+For wake word functionality in commercial products, please obtain a license from
+Picovoice (https://picovoice.ai/pricing/) or use an alternative MIT-licensed
+solution like OpenWakeWord.

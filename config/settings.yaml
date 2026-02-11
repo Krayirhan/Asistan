@@ -1,0 +1,146 @@
+# ========================================
+# HARDWARE OPTIMIZATION (RTX 2060 Super)
+# ========================================
+hardware:
+  gpu_memory_limit: 7.5  # GB (8GB'dan 0.5GB sistem için ayrılır)
+  auto_memory_management: true
+  model_unload_timeout: 30  # saniye (kullanılmazsa boşalt)
+  mixed_precision: true  # FP16 kullan
+  cpu_threads: 6  # Ryzen 5 3600X için
+
+# ========================================
+# LLM SETTINGS (Qwen2.5-7B Instruct)
+# ========================================
+llm:
+  model: "qwen2.5:7b"  # Daha iyi anlama ve cevap kalitesi - ~4GB VRAM
+  max_tokens: 1024
+  temperature: 0.1  # Minimum randomness - tam deterministik
+  top_p: 0.8
+  repeat_penalty: 1.2
+  context_length: 15  # Son 15 mesaj (sliding window)
+  stream: true  # Kelime kelime göster
+  num_gpu: 1  # Tüm model GPU'da
+  
+  # Optimizasyon parametreleri
+  batch_size: 1
+  num_thread: 4
+  use_mmap: true
+  use_mlock: false
+  low_vram: true
+
+# ========================================
+# VLM SETTINGS (Moondream - Stable Vision)
+# ========================================
+vlm:
+  model: "moondream"  # Hafif ve stabil - 1.7GB (LLaVA 7B çöküyor)
+  enabled: true
+  max_tokens: 512
+  lazy_load: true  # Sadece resim gelince yükle
+  auto_unload: true  # İşlem bitince boşalt
+  image_resize: [384, 384]  # Moondream için optimize boyut
+
+# ========================================
+# STT SETTINGS (Faster-Whisper Optimized)
+# ========================================
+stt:
+  model_size: "base"  # base = daha iyi doğruluk (~2 saniye)
+  device: "cpu"  # CUDA hatası var, CPU kullan
+  compute_type: "int8"  # int8 hızlı
+  language: "tr"
+  beam_size: 1  # 1 = en hızlı
+  vad_filter: false  # VAD kapalı = daha hızlı
+  vad_parameters:
+    threshold: 0.5
+    min_speech_duration_ms: 250
+    max_speech_duration_s: 30
+
+  # Optimizasyon
+  chunk_length: 30  # saniye
+  batch_size: 1
+  best_of: 1  # En hızlı
+
+# ========================================
+# TTS SETTINGS (Kokoro CPU-Only)
+# ========================================
+tts:
+  model: "kokoro-82m"
+  device: "cpu"  # VRAM'dan tasarruf
+  voice: "af_sky"  # af_sky, af_bella, af_sarah
+  speed: 1.0
+  sample_rate: 24000
+  
+  # CPU optimizasyonu
+  num_threads: 4
+  streaming: true  # Ürettikçe çal
+
+# ========================================
+# WAKE WORD (Disabled for Commercial Use)
+# ========================================
+# NOTE: Porcupine requires commercial license for non-personal use
+# Alternative: Use OpenWakeWord (MIT license) or disable wake word
+wake_word:
+  enabled: false  # Disabled to avoid commercial license issues
+  keyword: "jarvis"  # veya "jarvis", "computer", "hey google"
+  sensitivity: 0.5  # 0.0-1.0
+  device: "cpu"
+  
+  # Özel wake word (opsiyonel)
+  custom_model_path: null  # .ppn dosyası
+
+# ========================================
+# WEB SEARCH
+# ========================================
+web_search:
+  enabled: true
+  max_results: 5
+  timeout: 10  # saniye
+  cache_enabled: true
+  cache_ttl: 3600  # 1 saat
+
+# ========================================
+# MEMORY & CACHE
+# ========================================
+memory:
+  max_history: 15  # mesaj
+  save_to_disk: true
+  compression: true
+  
+cache:
+  enabled: true
+  max_size_mb: 500
+  ttl_seconds: 3600
+  backend: "file"  # file, redis
+
+# ========================================
+# LOGGING & MONITORING
+# ========================================
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  save_conversations: true
+  save_path: "logs/"
+  format: "json"
+  
+monitoring:
+  vram_check_interval: 5  # saniye
+  performance_metrics: true
+  alert_on_high_memory: true
+  alert_threshold: 0.9  # 90% VRAM kullanımında uyar
+
+# ========================================
+# UI MODES
+# ========================================
+ui:
+  default_mode: "console"  # console, voice, gui
+  console:
+    colored_output: true
+    markdown_rendering: true
+    show_thinking: true
+  
+  voice:
+    auto_listen: true
+    continuous_mode: false
+    
+  gui:
+    server_port: 7861
+    share: false
+    auth: null  # [username, password] veya null
