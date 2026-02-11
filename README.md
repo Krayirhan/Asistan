@@ -1,6 +1,6 @@
 # AI Sesli Asistan
 
-RTX 2060 Super (8GB VRAM) icin optimize edilmis, tamamen acik kaynak Turkce sesli asistan.
+RTX 2060 Super (8GB VRAM) için optimize edilmiş, tamamen açık kaynak Türkçe sesli asistan.
 
 [![Python](https://img.shields.io/badge/python-3.10-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
@@ -8,26 +8,26 @@ RTX 2060 Super (8GB VRAM) icin optimize edilmis, tamamen acik kaynak Turkce sesl
 
 ---
 
-## Ozellikler
+## Özellikler
 
-- Metin ve sesli sohbet (Gradio web arayuzu)
-- Gercek zamanli internet arama (hava durumu, doviz, kripto, haberler)
-- Gorsel analiz (resim yukle, soru sor)
-- Turkce ses tanima ve ses sentezi
-- Otomatik VRAM yonetimi
+- Metin ve sesli sohbet (Gradio web arayüzü)
+- Gerçek zamanlı internet arama (hava durumu, döviz, kripto, haberler)
+- Görsel analiz (resim yükle, soru sor)
+- Türkçe ses tanıma ve ses sentezi
+- Otomatik VRAM yönetimi
 
 ## Teknik Stack
 
-| Bilesen | Model | Detay |
+| Bileşen | Model | Detay |
 |---------|-------|-------|
 | LLM | Qwen2.5-7B | Ollama, ~4GB VRAM |
 | VLM | Moondream 2B | Ollama, ~1.7GB VRAM |
 | STT | Faster-Whisper | Base, INT8, CPU |
-| TTS | Piper TTS | Turkce (fettah-medium), CPU |
+| TTS | Piper TTS | Türkçe (fettah-medium), CPU |
 | Web Arama | DuckDuckGo + API | Open-Meteo, ExchangeRate, CoinGecko |
-| UI | Gradio | Web arayuzu, 4 sekme |
+| UI | Gradio | Web arayüzü, 4 sekme |
 
-**VRAM Kullanimi:** ~6GB / 8GB
+**VRAM Kullanımı:** ~6GB / 8GB
 
 ---
 
@@ -51,7 +51,7 @@ ollama pull qwen2.5:7b
 ollama pull moondream
 ```
 
-### 3. Python Ortami
+### 3. Python Ortamı
 
 ```bash
 python -m venv .venv
@@ -65,41 +65,41 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Calistir
+### 4. Çalıştır
 
 ```bash
-# Web arayuzu
+# Web arayüzü
 python src/main.py --mode gui
 
 # Konsol
 python src/main.py --mode console
 ```
 
-Tarayicinizda `http://127.0.0.1:7861` acilir.
+Tarayıcınızda `http://127.0.0.1:7861` açılır.
 
 ---
 
-## Proje Yapisi
+## Proje Yapısı
 
 ```
 asistan/
 ├── config/
-│   └── settings.yaml          # Tum ayarlar
+│   └── settings.yaml          # Tüm ayarlar
 ├── src/
 │   ├── core/
 │   │   ├── llm_manager.py     # LLM + web arama entegrasyonu
-│   │   ├── model_loader.py    # GPU/VRAM yonetimi
-│   │   └── cache_manager.py   # Yanit cache
+│   │   ├── model_loader.py    # GPU/VRAM yönetimi
+│   │   └── cache_manager.py   # Yanıt cache
 │   ├── audio/
-│   │   ├── stt_engine.py      # Ses tanima (Whisper)
+│   │   ├── stt_engine.py      # Ses tanıma (Whisper)
 │   │   └── tts_engine.py      # Ses sentezi (Piper)
 │   ├── tools/
 │   │   ├── web_search.py      # Arama + API entegrasyonu
-│   │   ├── image_handler.py   # Gorsel isleme
+│   │   ├── image_handler.py   # Görsel işleme
 │   │   └── utils.py
 │   ├── ui/
-│   │   ├── gradio_ui.py       # Web arayuzu
-│   │   └── console_ui.py      # Terminal arayuzu
+│   │   ├── gradio_ui.py       # Web arayüzü
+│   │   └── console_ui.py      # Terminal arayüzü
 │   ├── monitoring/
 │   │   ├── vram_monitor.py    # VRAM takibi
 │   │   ├── performance.py     # Performans metrikleri
@@ -115,7 +115,7 @@ asistan/
 
 Apache License 2.0
 
-Kullanilan tum bilesenler ticari kullanima uygundur:
+Kullanılan tüm bileşenler ticari kullanıma uygundur:
 - Qwen2.5: Apache 2.0
 - Moondream: Apache 2.0
 - Faster-Whisper: MIT
