@@ -15,15 +15,12 @@ sys.path.insert(0, str(Path(__file__).parent))
 # Import managers
 from core.model_loader import ModelManager
 from core.llm_manager import LLMManager
-from core.memory_manager import MemoryManager
 from core.cache_manager import CacheManager
 
 from audio.stt_engine import STTEngine
 from audio.tts_engine import TTSEngine
-from audio.wake_word import WakeWordDetector
 
 from ui.console_ui import ConsoleUI
-from ui.voice_ui import VoiceUI
 from ui.gradio_ui import GradioUI
 
 from monitoring.vram_monitor import VRAMMonitor
@@ -83,7 +80,7 @@ def main():
     
     parser.add_argument(
         "--mode",
-        choices=["console", "voice", "gui"],
+        choices=["console", "gui"],
         default="console",
         help="Çalışma modu (default: console)"
     )
@@ -141,7 +138,6 @@ def main():
     
     try:
         model_manager = ModelManager(config)
-        memory_manager = MemoryManager(config)
         cache_manager = CacheManager(config)
         llm_manager = LLMManager(config, model_manager)
         
@@ -158,11 +154,6 @@ def main():
         stt_engine = STTEngine(config, model_manager)
         tts_engine = TTSEngine(config)
         
-        # Wake word (sadece voice mode'da gerekli)
-        wake_word = None
-        if args.mode == "voice" and config['wake_word']['enabled']:
-            wake_word = WakeWordDetector(config)
-        
         logger.success("✅ Audio bileşenleri hazır")
         logger.info("ℹ️  STT modeli ilk kullanımda yüklenecek (small model, CPU optimized)")
         
@@ -171,7 +162,6 @@ def main():
         logger.warning("⚠️  Audio özellikleri sınırlı olabilir")
         stt_engine = None
         tts_engine = None
-        wake_word = None
     
     # UI başlat
     logger.info(f"\n🖥️  {args.mode.upper()} UI başlatılıyor...")
@@ -181,17 +171,13 @@ def main():
             ui = ConsoleUI(config, llm_manager, stt_engine, tts_engine)
             ui.run()
             
-        elif args.mode == "voice":
-            if not stt_engine or not wake_word:
-                logger.error("Voice mode için gerekli bileşenler yüklü değil!")
-                sys.exit(1)
-            
-            ui = VoiceUI(config, llm_manager, stt_engine, tts_engine, wake_word)
-            ui.run()
-            
         elif args.mode == "gui":
             ui = GradioUI(config, llm_manager, stt_engine, tts_engine)
             ui.launch()
+        
+        else:
+            logger.error(f"Bilinmeyen mod: {args.mode}")
+            sys.exit(1)
             
     except KeyboardInterrupt:
         logger.info("\n\n🛑 Kullanıcı tarafından durduruldu")
@@ -209,10 +195,6 @@ def main():
             model_manager.unload_model("llm")
             model_manager.unload_model("vlm")
             model_manager.unload_model("stt")
-        
-        # Memory kaydet
-        if hasattr(memory_manager, 'save_session'):
-            memory_manager.save_session()
         
         # Cache kaydet
         if hasattr(cache_manager, '_save_cache'):
