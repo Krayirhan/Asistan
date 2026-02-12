@@ -15,11 +15,11 @@ def test_stt_engine():
     config = {
         'hardware': {'gpu_memory_limit': 7.5, 'model_unload_timeout': 30},
         'stt': {
-            'model_size': 'medium',
-            'device': 'cuda',
+            'model_size': 'base',
+            'device': 'cpu',
             'compute_type': 'int8',
             'language': 'tr',
-            'beam_size': 3,
+            'beam_size': 1,
             'vad_filter': False
         }
     }
@@ -47,13 +47,12 @@ def test_tts_engine():
     
     config = {
         'tts': {
-            'model': 'kokoro-82m',
+            'engine': 'piper',
+            'model_path': 'models/piper/tr_TR-fettah-medium.onnx',
             'device': 'cpu',
-            'voice': 'af_sky',
             'speed': 1.0,
-            'sample_rate': 24000,
-            'num_threads': 4,
-            'streaming': False
+            'sample_rate': 22050,
+            'num_threads': 4
         }
     }
     

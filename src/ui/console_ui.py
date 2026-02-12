@@ -33,6 +33,10 @@ class ConsoleUI:
         self.colored = self.ui_config.get('colored_output', True)
         self.markdown = self.ui_config.get('markdown_rendering', True)
         
+        # Web search tool (tek instance, cache korunsun)
+        from tools.web_search import WebSearchTool
+        self.search_tool = WebSearchTool(config)
+        
         if RICH_AVAILABLE:
             self.console = Console()
         else:
@@ -267,13 +271,9 @@ class ConsoleUI:
     def _web_search(self, query: str):
         """Web araması"""
         
-        from tools.web_search import WebSearchTool
-        
-        search_tool = WebSearchTool(self.config)
-        
         self.print(f"\n🔍 Web'de aranıyor: '{query}'\n", style="cyan")
         
-        results = search_tool.search(query, max_results=5)
+        results = self.search_tool.search(query, max_results=5)
         
         if not results:
             self.print("❌ Sonuç bulunamadı", style="red")

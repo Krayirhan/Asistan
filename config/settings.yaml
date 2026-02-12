@@ -9,17 +9,20 @@ hardware:
   cpu_threads: 6  # Ryzen 5 3600X için
 
 # ========================================
-# LLM SETTINGS (Qwen2.5-7B Instruct)
+# LLM SETTINGS (Qwen2.5-7B — Türkçe Optimized)
 # ========================================
 llm:
-  model: "qwen2.5:7b"  # Daha iyi anlama ve cevap kalitesi - ~4GB VRAM
+  model: "turkce-asistan"  # Ollama Modelfile ile oluşturulmuş Türkçe model
+  fallback_model: "qwen2.5:7b"  # Eğer özel model yoksa
   max_tokens: 1024
-  temperature: 0.1  # Minimum randomness - tam deterministik
-  top_p: 0.8
-  repeat_penalty: 1.2
-  context_length: 15  # Son 15 mesaj (sliding window)
-  stream: true  # Kelime kelime göster
-  num_gpu: 1  # Tüm model GPU'da
+  temperature: 0.4       # 0.1 çok robotik, 0.4 doğal ama tutarlı
+  top_p: 0.85            # Daha geniş kelime dağarcığı
+  top_k: 40              # Top-K sampling
+  repeat_penalty: 1.15   # 1.2 çok agresif, 1.15 doğal tekrar engeli
+  repeat_last_n: 128     # Son 128 token'da tekrar kontrolü
+  context_length: 15     # Son 15 mesaj (sliding window)
+  stream: true
+  num_gpu: 1
   
   # Optimizasyon parametreleri
   batch_size: 1
@@ -60,32 +63,17 @@ stt:
   best_of: 1  # En hızlı
 
 # ========================================
-# TTS SETTINGS (Kokoro CPU-Only)
+# TTS SETTINGS (Piper - Türkçe, CPU-Only)
 # ========================================
 tts:
-  model: "kokoro-82m"
-  device: "cpu"  # VRAM'dan tasarruf
-  voice: "af_sky"  # af_sky, af_bella, af_sarah
+  engine: "piper"
+  model_path: "models/piper/tr_TR-fettah-medium.onnx"
+  device: "cpu"  # VRAM'dan tasarruf, Piper tamamen CPU'da çalışır
   speed: 1.0
-  sample_rate: 24000
+  sample_rate: 22050  # Piper fettah-medium: 22050Hz
   
   # CPU optimizasyonu
   num_threads: 4
-  streaming: true  # Ürettikçe çal
-
-# ========================================
-# WAKE WORD (Disabled for Commercial Use)
-# ========================================
-# NOTE: Porcupine requires commercial license for non-personal use
-# Alternative: Use OpenWakeWord (MIT license) or disable wake word
-wake_word:
-  enabled: false  # Disabled to avoid commercial license issues
-  keyword: "jarvis"  # veya "jarvis", "computer", "hey google"
-  sensitivity: 0.5  # 0.0-1.0
-  device: "cpu"
-  
-  # Özel wake word (opsiyonel)
-  custom_model_path: null  # .ppn dosyası
 
 # ========================================
 # WEB SEARCH

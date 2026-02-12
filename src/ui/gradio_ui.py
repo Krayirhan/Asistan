@@ -4,8 +4,6 @@ AI Sesli Asistan - Gradio UI
 """
 
 from loguru import logger
-import threading
-import queue
 import numpy as np
 
 try:
@@ -79,10 +77,6 @@ class GradioUI:
         self.tts = tts_engine
         self.port = config['ui']['gui'].get('server_port', 7860)
         self.share = config['ui']['gui'].get('share', False)
-        self.audio_queue = queue.Queue()
-        self.listening_thread = None
-        self.is_listening_flag = threading.Event()
-        self.is_paused_flag = threading.Event()
 
         if not GRADIO_AVAILABLE:
             self.interface = None
@@ -161,12 +155,7 @@ class GradioUI:
             return history, resp, audio_out
 
         def speak_last(txt):
-            if txt and self.tts:
-                try:
-                    self.tts.speak(txt)
-                except Exception:
-                    pass
-            return None
+            return self._tts(txt)
 
         def clear():
             self.llm.clear_history()

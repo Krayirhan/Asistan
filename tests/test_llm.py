@@ -17,17 +17,27 @@ def test_llm_basic_query():
             'auto_memory_management': True
         },
         'llm': {
-            'model': 'qwen2.5:3b-instruct-q4_K_M',
+            'model': 'turkce-asistan',
+            'fallback_model': 'qwen2.5:7b',
             'max_tokens': 100,
-            'temperature': 0.7,
-            'top_p': 0.9,
-            'repeat_penalty': 1.1,
+            'temperature': 0.4,
+            'top_p': 0.85,
+            'top_k': 40,
+            'repeat_penalty': 1.15,
+            'repeat_last_n': 128,
             'context_length': 15,
             'stream': False
+        },
+        'vlm': {
+            'model': 'moondream',
+            'image_resize': [384, 384]
         },
         'memory': {
             'max_history': 15,
             'save_to_disk': False
+        },
+        'web_search': {
+            'enabled': False
         }
     }
     
@@ -55,13 +65,26 @@ def test_conversation_history():
     config = {
         'hardware': {'gpu_memory_limit': 7.5, 'model_unload_timeout': 30},
         'llm': {
-            'model': 'qwen2.5:3b-instruct-q4_K_M',
+            'model': 'turkce-asistan',
+            'fallback_model': 'qwen2.5:7b',
             'max_tokens': 100,
-            'temperature': 0.7
+            'temperature': 0.4,
+            'top_p': 0.85,
+            'top_k': 40,
+            'repeat_penalty': 1.15,
+            'repeat_last_n': 128,
+            'context_length': 15
+        },
+        'vlm': {
+            'model': 'moondream',
+            'image_resize': [384, 384]
         },
         'memory': {
             'max_history': 5,  # Küçük limit
             'save_to_disk': False
+        },
+        'web_search': {
+            'enabled': False
         }
     }
     

@@ -139,7 +139,7 @@ def main():
     try:
         model_manager = ModelManager(config)
         cache_manager = CacheManager(config)
-        llm_manager = LLMManager(config, model_manager)
+        llm_manager = LLMManager(config, model_manager, cache_manager, perf_tracker)
         
         logger.success("✅ Core bileşenler hazır")
         

@@ -262,22 +262,22 @@ class WebSearchTool:
                 tomorrow_desc = self._wmo_to_turkish(codes[1]) if len(codes) > 1 else ""
                 tomorrow_rain = rain_probs[1] if len(rain_probs) > 1 else 0
                 tomorrow_line = (
-                    f"\nYarin: {min_list[1]}C / {max_list[1]}C, "
-                    f"{tomorrow_desc}, yagis ihtimali: %{tomorrow_rain}"
+                    f"\nYarın: {min_list[1]}°C / {max_list[1]}°C, "
+                    f"{tomorrow_desc}, yağış ihtimali: %{tomorrow_rain}"
                 )
 
             result = (
-                f"Anlik sicaklik: {temp}C\n"
-                f"Hissedilen: {feels}C\n"
+                f"Anlık sıcaklık: {temp}°C\n"
+                f"Hissedilen: {feels}°C\n"
                 f"Durum: {weather_desc}\n"
                 f"Nem: %{humidity}\n"
-                f"Ruzgar: {wind} km/sa\n"
-                f"Bugun en dusuk: {today_min}C, en yuksek: {today_max}C\n"
-                f"Yagis ihtimali: %{rain_prob}"
+                f"Rüzgar: {wind} km/sa\n"
+                f"Bugün en düşük: {today_min}°C, en yüksek: {today_max}°C\n"
+                f"Yağış ihtimali: %{rain_prob}"
                 f"{tomorrow_line}"
             )
 
-            logger.success(f"Open-Meteo: {city} -> {temp}C (hissedilen {feels}C)")
+            logger.success(f"Open-Meteo: {city} -> {temp}°C (hissedilen {feels}°C)")
             return result
 
         except requests.exceptions.Timeout:
@@ -288,19 +288,19 @@ class WebSearchTool:
             return None
 
     def _wmo_to_turkish(self, code: int) -> str:
-        """WMO hava kodu -> Turkce aciklama"""
+        """WMO hava kodu -> Türkçe açıklama"""
         wmo_codes = {
-            0: 'Acik', 1: 'Cogunlukla acik', 2: 'Parcali bulutlu', 3: 'Kapali',
-            45: 'Sisli', 48: 'Kiragili sis',
-            51: 'Hafif ciseleme', 53: 'Orta ciseleme', 55: 'Yogun ciseleme',
-            61: 'Hafif yagmur', 63: 'Orta yagmur', 65: 'Siddetli yagmur',
-            66: 'Dondurucu hafif yagmur', 67: 'Dondurucu siddetli yagmur',
-            71: 'Hafif kar', 73: 'Orta kar', 75: 'Yogun kar',
-            77: 'Kar taneleri', 80: 'Hafif saganak', 81: 'Orta saganak',
-            82: 'Siddetli saganak',
-            85: 'Hafif kar saganagi', 86: 'Yogun kar saganagi',
-            95: 'Gok gurultulu firtina', 96: 'Dolu ile firtina',
-            99: 'Siddetli dolu ile firtina',
+            0: 'Açık', 1: 'Çoğunlukla açık', 2: 'Parçalı bulutlu', 3: 'Kapalı',
+            45: 'Sisli', 48: 'Kırağılı sis',
+            51: 'Hafif çiseleme', 53: 'Orta çiseleme', 55: 'Yoğun çiseleme',
+            61: 'Hafif yağmur', 63: 'Orta yağmur', 65: 'Şiddetli yağmur',
+            66: 'Dondurucu hafif yağmur', 67: 'Dondurucu şiddetli yağmur',
+            71: 'Hafif kar', 73: 'Orta kar', 75: 'Yoğun kar',
+            77: 'Kar taneleri', 80: 'Hafif sağanak', 81: 'Orta sağanak',
+            82: 'Şiddetli sağanak',
+            85: 'Hafif kar sağanağı', 86: 'Yoğun kar sağanağı',
+            95: 'Gök gürültülü fırtına', 96: 'Dolu ile fırtına',
+            99: 'Şiddetli dolu ile fırtına',
         }
         return wmo_codes.get(code, 'Bilinmiyor')
 
@@ -337,13 +337,13 @@ class WebSearchTool:
             gbp_try = try_rate / gbp_usd if gbp_usd else 0
 
             result = (
-                f"Doviz Kurlari (canli):\n"
+                f"Döviz Kurları (canlı):\n"
                 f"1 Dolar (USD) = {try_rate:.2f} TL\n"
                 f"1 Euro (EUR) = {eur_try:.2f} TL\n"
                 f"1 Sterlin (GBP) = {gbp_try:.2f} TL"
             )
 
-            logger.success(f"Doviz: 1 USD = {try_rate:.2f} TL")
+            logger.success(f"Döviz: 1 USD = {try_rate:.2f} TL")
             self._set_cache(cache_key, result)
             return result
 
@@ -352,10 +352,10 @@ class WebSearchTool:
             return self._currency_search_fallback(query)
 
     def _currency_search_fallback(self, query: str) -> Optional[str]:
-        """DuckDuckGo ile doviz fallback"""
-        results = self.search(f"{query} kur bugun TL", max_results=5)
+        """DuckDuckGo ile döviz fallback"""
+        results = self.search(f"{query} kur bugün TL", max_results=5)
         if results:
-            text = "Doviz Kurlari (web'den):\n"
+            text = "Döviz Kurları (web'den):\n"
             for r in results:
                 snippet = r.get('snippet', '')
                 if any(w in snippet.lower() for w in ['tl', 'lira', 'kur', 'dolar', 'euro']):
@@ -418,7 +418,7 @@ class WebSearchTool:
                 'avalanche-2': 'Avalanche (AVAX)', 'binancecoin': 'BNB',
             }
 
-            lines = ["Kripto Para Fiyatlari (canli):"]
+            lines = ["Kripto Para Fiyatları (canlı):"]
             for coin_id in found_cryptos:
                 coin_data = data.get(coin_id, {})
                 usd_price = coin_data.get('usd', 0)
@@ -453,9 +453,9 @@ class WebSearchTool:
 
     def _crypto_search_fallback(self, query: str) -> Optional[str]:
         """DuckDuckGo ile kripto fallback"""
-        results = self.search(f"{query} fiyat bugun USD TL", max_results=5)
+        results = self.search(f"{query} fiyat bugün USD TL", max_results=5)
         if results:
-            text = "Kripto Fiyatlari (web'den):\n"
+            text = "Kripto Fiyatları (web'den):\n"
             for r in results:
                 snippet = r.get('snippet', '')
                 if any(w in snippet.lower() for w in ['$', 'usd', 'tl', 'fiyat', 'price']):
@@ -468,15 +468,15 @@ class WebSearchTool:
     # ==============================================================
 
     def get_gold_price(self) -> Optional[str]:
-        """Altin fiyatlarini al"""
+        """Altın fiyatlarını al"""
         cache_key = "gold_price"
         cached = self._get_cache(cache_key)
         if cached:
             return cached
 
-        results = self.search("altin fiyatlari bugun gram ceyrek tam", max_results=5)
+        results = self.search("altın fiyatları bugün gram çeyrek tam", max_results=5)
         if results:
-            text = "Altin Fiyatlari (web'den):\n"
+            text = "Altın Fiyatları (web'den):\n"
             count = 0
             for r in results:
                 snippet = r.get('snippet', '')
@@ -495,15 +495,15 @@ class WebSearchTool:
     # ==============================================================
 
     def get_sports_results(self, query: str) -> Optional[str]:
-        """Spor sonuclarini al"""
+        """Spor sonuçlarını al"""
         cache_key = f"sports_{hash(query) % 10000}"
         cached = self._get_cache(cache_key)
         if cached:
             return cached
 
-        results = self.search(f"{query} mac skoru sonucu", max_results=5)
+        results = self.search(f"{query} maç skoru sonucu", max_results=5)
         if results:
-            text = "Spor Sonuclari:\n"
+            text = "Spor Sonuçları:\n"
             for r in results:
                 text += f"- {r['title']}: {r['snippet']}\n"
             self._set_cache(cache_key, text)
@@ -580,7 +580,7 @@ class WebSearchTool:
             )
 
             if temp_matches:
-                return f"Anlik sicaklik: {temp_matches[0]}C (web'den)"
+                return f"Anlık sıcaklık: {temp_matches[0]}°C (web'den)"
 
             text = ""
             for r in results[:3]:
@@ -730,7 +730,7 @@ class WebSearchTool:
                 city = 'ankara'
             weather = self.get_weather(city)
             if weather:
-                return f"{city.upper()} HAVA DURUMU (CANLI VERI):\n{weather}"
+                return f"{city.upper()} HAVA DURUMU (CANLI VERİ):\n{weather}"
 
         # ---- DOVIZ ----
         doviz_keywords = ['dolar', 'euro', 'sterlin', 'kur', 'doviz',
@@ -823,7 +823,7 @@ class WebSearchTool:
         if any(kw in query_norm for kw in bilgi_keywords):
             results = self.search(query, max_results=5)
             if results:
-                text = "INTERNET ARASTIRMA SONUCLARI:\n"
+                text = "İNTERNET ARAŞTIRMA SONUÇLARI:\n"
                 for r in results:
                     text += f"- {r['title']}: {r['snippet']}\n"
                 return text
@@ -832,7 +832,7 @@ class WebSearchTool:
         if '?' in query or query_norm.rstrip().endswith(('mi', 'mu', 'mi?', 'mu?')):
             results = self.search(query, max_results=3)
             if results:
-                text = "INTERNET ARASTIRMA SONUCLARI:\n"
+                text = "İNTERNET ARAŞTIRMA SONUÇLARI:\n"
                 for r in results:
                     text += f"- {r['title']}: {r['snippet']}\n"
                 return text
@@ -844,24 +844,24 @@ class WebSearchTool:
         now = datetime.now()
 
         gun_isimleri = {
-            'Monday': 'Pazartesi', 'Tuesday': 'Sali',
-            'Wednesday': 'Carsamba', 'Thursday': 'Persembe',
+            'Monday': 'Pazartesi', 'Tuesday': 'Salı',
+            'Wednesday': 'Çarşamba', 'Thursday': 'Perşembe',
             'Friday': 'Cuma', 'Saturday': 'Cumartesi',
             'Sunday': 'Pazar'
         }
         ay_isimleri = {
-            'January': 'Ocak', 'February': 'Subat', 'March': 'Mart',
-            'April': 'Nisan', 'May': 'Mayis', 'June': 'Haziran',
-            'July': 'Temmuz', 'August': 'Agustos',
-            'September': 'Eylul', 'October': 'Ekim',
-            'November': 'Kasim', 'December': 'Aralik'
+            'January': 'Ocak', 'February': 'Şubat', 'March': 'Mart',
+            'April': 'Nisan', 'May': 'Mayıs', 'June': 'Haziran',
+            'July': 'Temmuz', 'August': 'Ağustos',
+            'September': 'Eylül', 'October': 'Ekim',
+            'November': 'Kasım', 'December': 'Aralık'
         }
 
         gun = gun_isimleri.get(now.strftime('%A'), now.strftime('%A'))
         ay = ay_isimleri.get(now.strftime('%B'), now.strftime('%B'))
 
         return (
-            f"GUNCEL ZAMAN BILGISI:\n"
+            f"GÜNCEL ZAMAN BİLGİSİ:\n"
             f"Tarih: {now.day} {ay} {now.year}, {gun}\n"
             f"Saat: {now.strftime('%H:%M')}"
         )

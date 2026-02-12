@@ -129,18 +129,26 @@ class ModelManager:
                 self.unload_model(model_name)
     
     def _load_llm(self):
-        """Qwen2.5-3B yükle"""
+        """Qwen2.5 yükle (Türkçe özel model veya fallback)"""
         try:
             from ollama import Client
             client = Client(host='http://localhost:11434')
             
-            # Model var mı kontrol et
+            # Mevcut modelleri kontrol et
             models = client.list()
-            model_name = self.config['llm']['model']
+            model_list_str = str(models)
             
-            # Model ismini sadeleştir (tag kısmını al)
-            if model_name not in str(models):
-                logger.warning(f"{model_name} yüklü değil! 'ollama pull {model_name}' çalıştırın")
+            model_name = self.config['llm']['model']
+            fallback = self.config['llm'].get('fallback_model', 'qwen2.5:7b')
+            
+            # Özel Türkçe model var mı?
+            if model_name in model_list_str:
+                logger.success(f"Türkçe özel model bulundu: {model_name}")
+            elif fallback in model_list_str:
+                logger.warning(f"{model_name} bulunamadı, fallback kullanılıyor: {fallback}")
+                self.config['llm']['model'] = fallback
+            else:
+                logger.warning(f"{model_name} ve {fallback} yüklü değil! 'ollama pull {fallback}' çalıştırın")
             
             return client
         except Exception as e:

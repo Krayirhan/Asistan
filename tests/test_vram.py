@@ -20,11 +20,14 @@ def test_vram_limit():
             'cpu_threads': 6
         },
         'llm': {
-            'model': 'qwen2.5:3b-instruct-q4_K_M',
+            'model': 'turkce-asistan',
+            'fallback_model': 'qwen2.5:7b',
             'max_tokens': 1024,
-            'temperature': 0.7,
-            'top_p': 0.9,
-            'repeat_penalty': 1.1,
+            'temperature': 0.4,
+            'top_p': 0.85,
+            'top_k': 40,
+            'repeat_penalty': 1.15,
+            'repeat_last_n': 128,
             'context_length': 15,
             'stream': True,
             'num_gpu': 1
@@ -36,8 +39,8 @@ def test_vram_limit():
             'auto_unload': True
         },
         'stt': {
-            'model_size': 'medium',
-            'device': 'cuda',
+            'model_size': 'base',
+            'device': 'cpu',
             'compute_type': 'int8'
         }
     }
@@ -73,9 +76,9 @@ def test_auto_cleanup():
             'model_unload_timeout': 5,  # Kısa timeout
             'auto_memory_management': True
         },
-        'llm': {'model': 'qwen2.5:3b-instruct-q4_K_M'},
+        'llm': {'model': 'turkce-asistan', 'fallback_model': 'qwen2.5:7b'},
         'vlm': {'model': 'moondream'},
-        'stt': {'model_size': 'medium', 'device': 'cuda', 'compute_type': 'int8'}
+        'stt': {'model_size': 'base', 'device': 'cpu', 'compute_type': 'int8'}
     }
     
     manager = ModelManager(config)
