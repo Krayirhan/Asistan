@@ -81,7 +81,7 @@ def log_system_info():
     
     # GPU (eğer varsa)
     try:
-        import pynvml
+        import pynvml  # Provided by nvidia-ml-py
         pynvml.nvmlInit()
         handle = pynvml.nvmlDeviceGetHandleByIndex(0)
         gpu_name = pynvml.nvmlDeviceGetName(handle)
@@ -91,7 +91,7 @@ def log_system_info():
         logger.info(f"VRAM: {memory_info.total / 1024**3:.1f} GB")
         
         pynvml.nvmlShutdown()
-    except:
+    except Exception:
         logger.info("GPU: Not available")
     
     logger.info("="*60)

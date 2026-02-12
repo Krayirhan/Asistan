@@ -11,6 +11,7 @@ Web Search Tool - Tam Optimize Versiyon
 
 import re
 import time
+import hashlib
 from datetime import datetime
 from typing import List, Dict, Optional
 from loguru import logger
@@ -496,7 +497,8 @@ class WebSearchTool:
 
     def get_sports_results(self, query: str) -> Optional[str]:
         """Spor sonuçlarını al"""
-        cache_key = f"sports_{hash(query) % 10000}"
+        query_key = hashlib.md5(query.strip().lower().encode("utf-8")).hexdigest()[:12]
+        cache_key = f"sports_{query_key}"
         cached = self._get_cache(cache_key)
         if cached:
             return cached
@@ -529,10 +531,6 @@ class WebSearchTool:
 
     def _strip_turkish(self, text: str) -> str:
         """Turkce karakterleri ASCII'ye cevir"""
-        tr_map = {
-            'c\u0327': 'c', 'g\u0306': 'g', '\u0131': 'i', 'o\u0308': 'o',
-            's\u0327': 's', 'u\u0308': 'u',
-        }
         replacements = [
             ('\u00e7', 'c'), ('\u011f', 'g'), ('\u0131', 'i'),
             ('\u00f6', 'o'), ('\u015f', 's'), ('\u00fc', 'u'),
@@ -712,14 +710,26 @@ class WebSearchTool:
         """
         Sorguyu analiz edip en uygun arama yontemini otomatik sec.
         """
-        query_lower = query.lower()
+        query_lower = query.lower().strip()
         query_norm = self._strip_turkish(query_lower)
 
-        # ---- SAAT / TARiH ----
-        time_keywords = ['saat kac', 'saat', 'kac oldu', 'zaman', 'tarih',
-                         'bugun', 'bugunun tarihi', 'gun', 'hangi gun', 'yil']
-        if any(kw in query_norm for kw in time_keywords):
-            return self._get_time_info()
+        # ---- SOHBET / SELAMLASMA — arama YAPMA ----
+        skip_patterns = [
+            'selam', 'merhaba', 'naber', 'nasilsin', 'nabersin',
+            'iyi gunler', 'iyi aksamlar', 'iyi geceler', 'gunaydin',
+            'hey', 'sa', 'as', 'slm', 'mrb', 'nbr',
+            'tesekkurler', 'sagol', 'eyv', 'tamam', 'ok', 'peki',
+            'gorusuruz', 'bye', 'hoscakal', 'hosca kal',
+            'sen nesin', 'adin ne', 'kimsin', 'ne yapabilirsin',
+            'iyiyim', 'fena degil', 'idare eder', 'iyi',
+        ]
+        # Kisa sorgu ve skip listesindeki kelimelerden olusuyorsa arama yapma
+        words = query_norm.split()
+        if len(words) <= 4 and all(
+            any(w == sp or w.rstrip('?.!,') == sp for sp in skip_patterns)
+            for w in words
+        ):
+            return None
 
         # ---- HAVA DURUMU ----
         hava_keywords = ['hava', 'sicaklik', 'derece', 'yagmur', 'kar',
@@ -788,17 +798,24 @@ class WebSearchTool:
                         text += f"- {r['title']}: {r['snippet']}\n"
                     return text
 
+        # ---- SAAT / TARiH ----
+        # Zaman niyetini diger alanlardan sonra calistirarak yanlis eslesmeyi azalt.
+        if self._is_time_query(query_norm):
+            return self._get_time_info()
+
         # ---- GENEL BiLGi (genis kapsam) ----
+        # Kelime siniri kontrolu ile eslestir (substring degil)
+        query_words = set(query_norm.split())
         bilgi_keywords = [
             # Soru kelimeleri
             'kimdir', 'nedir', 'ne demek', 'nasil', 'neden', 'nerede',
-            'ne zaman', 'kac', 'kaci', 'kacinci', 'hangi', 'kim', 'ne',
+            'ne zaman', 'kac', 'kaci', 'kacinci', 'hangi', 'kim',
             'nereye', 'nereden',
             # Arama emirleri
             'ara', 'bul', 'internet', 'google', 'wiki', 'arastir',
             'anlat', 'acikla', 'tanitim', 'bilgi', 'ozet',
             # Guncel konular
-            'son', 'yeni', 'guncel', 'populer', 'trend',
+            'guncel', 'populer', 'trend',
             # Eglence
             'film', 'dizi', 'sarki', 'muzik', 'oyun',
             # Yemek
@@ -820,7 +837,10 @@ class WebSearchTool:
             'telefon', 'bilgisayar', 'laptop', 'tablet',
             'uygulama', 'program', 'yazilim',
         ]
-        if any(kw in query_norm for kw in bilgi_keywords):
+        # Tek kelimelik keyword'ler icin kelime siniri kontrolu
+        bilgi_single = {kw for kw in bilgi_keywords if ' ' not in kw}
+        bilgi_multi = [kw for kw in bilgi_keywords if ' ' in kw]
+        if (query_words & bilgi_single) or any(kw in query_norm for kw in bilgi_multi):
             results = self.search(query, max_results=5)
             if results:
                 text = "İNTERNET ARAŞTIRMA SONUÇLARI:\n"
@@ -838,6 +858,19 @@ class WebSearchTool:
                 return text
 
         return None
+
+    def _is_time_query(self, query_norm: str) -> bool:
+        """Sorgu saat/tarih bilgisi mi istiyor?"""
+        explicit_time_queries = [
+            'saat kac', 'saat kactir', 'su an saat', 'kac oldu', 'zaman kac',
+            'bugunun tarihi', 'bugun tarih', 'tarih nedir',
+            'bugun gunlerden ne', 'hangi gundayiz', 'hangi gun',
+        ]
+        if any(kw in query_norm for kw in explicit_time_queries):
+            return True
+
+        normalized = query_norm.strip().rstrip('?.!')
+        return normalized in {'saat', 'tarih', 'zaman', 'bugunun tarihi'}
 
     def _get_time_info(self) -> str:
         """Guncel saat ve tarih bilgisi"""

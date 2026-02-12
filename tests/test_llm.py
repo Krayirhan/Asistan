@@ -6,6 +6,8 @@ import pytest
 from src.core.model_loader import ModelManager
 from src.core.llm_manager import LLMManager
 
+pytestmark = pytest.mark.integration
+
 
 def test_llm_basic_query():
     """Basit LLM sorgusu testi"""

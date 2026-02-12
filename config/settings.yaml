@@ -32,15 +32,15 @@ llm:
   low_vram: true
 
 # ========================================
-# VLM SETTINGS (Moondream - Stable Vision)
+# VLM SETTINGS (Llama 3.2 Vision - High Quality)
 # ========================================
 vlm:
-  model: "moondream"  # Hafif ve stabil - 1.7GB (LLaVA 7B çöküyor)
+  model: "llama3.2-vision:11b"  # Daha kaliteli görsel analiz - 7.8GB
   enabled: true
-  max_tokens: 512
+  max_tokens: 300  # Daha uzun açıklama
   lazy_load: true  # Sadece resim gelince yükle
   auto_unload: true  # İşlem bitince boşalt
-  image_resize: [384, 384]  # Moondream için optimize boyut
+  image_resize: [512, 512]  # Yüksek kalite görsel
 
 # ========================================
 # STT SETTINGS (Faster-Whisper Optimized)
@@ -60,6 +60,7 @@ stt:
   # Optimizasyon
   chunk_length: 30  # saniye
   batch_size: 1
+  num_workers: 4
   best_of: 1  # En hızlı
 
 # ========================================

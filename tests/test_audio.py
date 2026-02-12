@@ -1,94 +1,65 @@
 """
-Test suite for audio components (STT, TTS)
+Test suite for audio components (STT, TTS).
 """
 
-import pytest
+from pathlib import Path
+
 import numpy as np
-from src.core.model_loader import ModelManager
+import pytest
+
 from src.audio.stt_engine import STTEngine
-from src.audio.tts_engine import TTSEngine
+from src.audio.tts_engine import PIPER_AVAILABLE, TTSEngine
+from src.core.model_loader import ModelManager
+
+
+pytestmark = pytest.mark.integration
 
 
 def test_stt_engine():
-    """STT engine testi"""
-    
+    """STT engine basic behavior."""
     config = {
-        'hardware': {'gpu_memory_limit': 7.5, 'model_unload_timeout': 30},
-        'stt': {
-            'model_size': 'base',
-            'device': 'cpu',
-            'compute_type': 'int8',
-            'language': 'tr',
-            'beam_size': 1,
-            'vad_filter': False
-        }
+        "hardware": {"gpu_memory_limit": 7.5, "model_unload_timeout": 30},
+        "stt": {
+            "model_size": "base",
+            "device": "cpu",
+            "compute_type": "int8",
+            "language": "tr",
+            "beam_size": 1,
+            "vad_filter": False,
+        },
     }
-    
-    print("\n[TEST] STT Engine başlatılıyor...")
+
     model_manager = ModelManager(config)
     stt_engine = STTEngine(config, model_manager)
-    
-    # Dummy audio oluştur (5 saniye sessizlik)
+
+    # 5 seconds of silence
     sample_rate = 16000
     duration = 5
     audio = np.zeros(duration * sample_rate, dtype=np.float32)
-    
-    # Sessizlik kontrolü
-    is_silent = stt_engine.is_audio_silent(audio)
-    
-    print(f"[TEST] Audio sessiz mi? {is_silent}")
-    assert is_silent == True, "Sessizlik algılanamadı"
-    
-    print("✅ STT engine testi geçti")
+
+    assert bool(stt_engine.is_audio_silent(audio))
 
 
 def test_tts_engine():
-    """TTS engine testi"""
-    
+    """TTS should load model when available and stay None when missing."""
     config = {
-        'tts': {
-            'engine': 'piper',
-            'model_path': 'models/piper/tr_TR-fettah-medium.onnx',
-            'device': 'cpu',
-            'speed': 1.0,
-            'sample_rate': 22050,
-            'num_threads': 4
+        "tts": {
+            "engine": "piper",
+            "model_path": "models/piper/tr_TR-fettah-medium.onnx",
+            "device": "cpu",
+            "speed": 1.0,
+            "sample_rate": 22050,
+            "num_threads": 4,
         }
     }
-    
-    print("\n[TEST] TTS Engine başlatılıyor...")
+
+    if not PIPER_AVAILABLE:
+        pytest.skip("Piper is not installed")
+
     tts_engine = TTSEngine(config)
-    
-    # Test metni
-    test_text = "Merhaba, bu bir test."
-    
-    print(f"[TEST] Test metni: {test_text}")
-    
-    # TTS çalıştır (ses çalmadan, sadece test)
-    try:
-        # Normalde speak() çağrılır ama test için skip
-        print("[TEST] TTS model kontrolü yapılıyor...")
-        assert tts_engine.model is not None or tts_engine.config is not None
-        print("✅ TTS engine testi geçti")
-    except Exception as e:
-        print(f"⚠️  TTS optional, hata: {e}")
+    model_exists = Path(config["tts"]["model_path"]).exists()
 
-
-if __name__ == "__main__":
-    print("="*60)
-    print("AUDIO COMPONENTS TESTS")
-    print("="*60)
-    
-    try:
-        test_stt_engine()
-    except Exception as e:
-        print(f"❌ STT test başarısız: {e}")
-    
-    try:
-        test_tts_engine()
-    except Exception as e:
-        print(f"❌ TTS test başarısız: {e}")
-    
-    print("\n" + "="*60)
-    print("TESTLER TAMAMLANDI")
-    print("="*60)
+    if model_exists:
+        assert tts_engine.model is not None, "Model file exists but TTS model did not load"
+    else:
+        assert tts_engine.model is None, "Model file missing but TTS model appears loaded"

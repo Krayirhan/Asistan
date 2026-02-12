@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Image Handler - Görsel işleme araçları
 Resim yükleme, boyutlandırma, format dönüşümü
@@ -77,6 +79,9 @@ class ImageHandler:
             Yeniden boyutlandırılmış resim
         """
         
+        if not PIL_AVAILABLE:
+            raise RuntimeError("Pillow yüklü değil")
+
         size = size or self.target_size
         
         if maintain_aspect:
@@ -100,6 +105,9 @@ class ImageHandler:
             RGB formatta resim
         """
         
+        if not PIL_AVAILABLE:
+            raise RuntimeError("Pillow yüklü değil")
+
         if image.mode != 'RGB':
             image = image.convert('RGB')
             logger.debug("Resim RGB'ye çevrildi")
@@ -181,6 +189,9 @@ class ImageHandler:
             Blur uygulanmış resim
         """
         
+        if not PIL_AVAILABLE:
+            raise RuntimeError("Pillow yüklü değil")
+
         from PIL import ImageFilter
         return image.filter(ImageFilter.GaussianBlur(radius=radius))
     

@@ -27,6 +27,8 @@ class CacheManager:
         
         self.cache_file = self.cache_dir / "response_cache.json"
         self.cache_data: Dict = self._load_cache()
+        self.cleanup_expired()
+        self._enforce_size_limit()
         
     def _load_cache(self) -> Dict:
         """Cache'i diskten yükle"""
@@ -50,6 +52,28 @@ class CacheManager:
         except Exception as e:
             logger.error(f"Cache kaydetme hatası: {e}")
     
+    def _get_cache_size_mb(self) -> float:
+        """Approximate in-memory cache size in MB."""
+        payload = json.dumps(self.cache_data, ensure_ascii=False).encode("utf-8")
+        return len(payload) / 1024 / 1024
+
+    def _enforce_size_limit(self):
+        """Evict oldest entries until cache is below max_size_mb."""
+        if self.max_size_mb <= 0:
+            return
+
+        removed = 0
+        while self.cache_data and self._get_cache_size_mb() > self.max_size_mb:
+            oldest_key = min(
+                self.cache_data,
+                key=lambda key: self.cache_data[key].get('timestamp', 0)
+            )
+            del self.cache_data[oldest_key]
+            removed += 1
+
+        if removed:
+            logger.warning(f"Cache size limit enforced, removed {removed} entries")
+
     def _generate_key(self, prompt: str, context: Optional[str] = None) -> str:
         """
         Prompt için unique key oluştur
@@ -120,6 +144,7 @@ class CacheManager:
         }
         
         logger.debug(f"Cache'e eklendi: {key}")
+        self._enforce_size_limit()
         
         # Periyodik kayıt
         if len(self.cache_data) % 10 == 0:

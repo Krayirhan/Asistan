@@ -7,6 +7,8 @@ import pytest
 import time
 from src.core.model_loader import ModelManager
 
+pytestmark = pytest.mark.integration
+
 
 def test_vram_limit():
     """VRAM kullanımı limit içinde mi?"""
